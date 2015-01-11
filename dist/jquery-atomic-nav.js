@@ -7,7 +7,7 @@
       this._parent = _parent;
       this._suffix = _suffix;
       this._currentPath = _currentPath;
-      this._fullPath = this._parent === null ? this._suffix : this._parent._fullPath + this._suffix;
+      this._fullPath = this._parent === null ? this._suffix : this._parent._fullPath.concat(this._suffix);
       this._isDestroyed = false;
     }
 
@@ -27,17 +27,31 @@
     };
 
     NavigationState.prototype.when = function(suffix, cb) {
-      var currentState, processPath;
+      var currentState, matchPath, processPath, suffixPath;
       if (this._isDestroyed) {
         throw new Error('already destroyed');
       }
+      suffixPath = suffix.split('/').slice(1);
+      if (suffixPath.length < 1) {
+        throw new Error('suffix must start with slash (/) and specify at least one path segment');
+      }
       currentState = null;
+      matchPath = function(subPath) {
+        var i, segment, _i, _len;
+        for (i = _i = 0, _len = suffixPath.length; _i < _len; i = ++_i) {
+          segment = suffixPath[i];
+          if (subPath[i] !== segment) {
+            return null;
+          }
+        }
+        return [{}, subPath.slice(suffixPath.length)];
+      };
       processPath = (function(_this) {
         return function(subPath) {
           var childSubPath, match;
-          match = /^(\/[^\/]*)(.*)$/.exec(subPath);
-          if (match && match[1] === suffix) {
-            childSubPath = match[2];
+          match = subPath !== null ? matchPath(subPath) : null;
+          if (match) {
+            childSubPath = match[1];
             if (currentState === null) {
               currentState = new NavigationState(_this, suffix, childSubPath);
               return cb(currentState);
@@ -80,9 +94,9 @@
   getHashPath = function() {
     var hash, hashMatch;
     hash = window.location.hash;
-    hashMatch = /^#(\/.*)$/.exec(hash);
+    hashMatch = /^#\/(.*)$/.exec(hash);
     if (hashMatch) {
-      return hashMatch[1];
+      return hashMatch[1].split('/');
     } else {
       return '';
     }

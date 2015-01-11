@@ -2,7 +2,7 @@
 ((module) -> module(jQuery)) ($) ->
     class NavigationState
         constructor: (@_parent, @_suffix, @_currentPath) ->
-            @_fullPath = if @_parent is null then @_suffix else @_parent._fullPath + @_suffix
+            @_fullPath = if @_parent is null then @_suffix else @_parent._fullPath.concat @_suffix
             @_isDestroyed = false
 
         _update: (subPath) ->
@@ -22,13 +22,25 @@
             if @_isDestroyed
                 throw new Error('already destroyed')
 
+            suffixPath = suffix.split('/').slice(1)
+
+            if suffixPath.length < 1
+                throw new Error('suffix must start with slash (/) and specify at least one path segment')
+
             currentState = null
 
-            processPath = (subPath) =>
-                match = /^(\/[^\/]*)(.*)$/.exec subPath
+            matchPath = (subPath) ->
+                for segment, i in suffixPath
+                    if subPath[i] isnt segment
+                        return null
 
-                if match and match[1] is suffix
-                    childSubPath = match[2]
+                return [ {}, subPath.slice suffixPath.length ]
+
+            processPath = (subPath) =>
+                match = if subPath isnt null then matchPath subPath else null
+
+                if match
+                    childSubPath = match[1]
 
                     # either create child state or destroy it
                     if currentState is null
@@ -65,10 +77,10 @@
 
     getHashPath = ->
         hash = window.location.hash
-        hashMatch = /^#(\/.*)$/.exec hash
+        hashMatch = /^#\/(.*)$/.exec hash
 
         if hashMatch
-            hashMatch[1]
+            hashMatch[1].split '/'
         else
             ''
 
