@@ -26,8 +26,8 @@ rootNav.when('/foo', function (fooNav) {
 
         // e.g. create a sub-widget and attach to container
 
-        $(fooNav).on('destroyed', function() {
-            console.log('left "foo" state');
+        $(barNav).on('destroyed', function() {
+            console.log('left "foo/bar" state');
 
             // e.g. destroy the sub-widget
         });
