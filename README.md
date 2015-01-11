@@ -5,6 +5,8 @@ This library is designed to work with component-based application UIs. Heavily i
 
 Unlike AngularJS UI Router and most other routing libraries, Atomic Nav routes are defined on-demand. This allows for a better, more elegant composition of widgets with no need for the massive central "routes" file.
 
+For more examples see `/example/index.html`.
+
 Example code:
 
 ```js
@@ -34,11 +36,11 @@ rootNav.when('/foo', function (fooNav) {
     });
 });
 
-rootNav.when('/baz', function (bazNav) {
-    console.log('entered "baz" state');
+rootNav.when('/baz/:someParam', function (someParam, bazNav) {
+    console.log('entered "baz" state with "' + someParam + '"');
 
     $(bazNav).on('destroyed', function() {
-        console.log('left "baz" state');
+        console.log('left "baz" state with "' + someParam + '"');
     });
 });
 ```
