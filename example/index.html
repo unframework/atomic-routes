@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>jQuery Atomic Nav example</title>
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script type="text/javascript" src="../dist/jquery-atomic-nav.js"></script>
+  </head>
+  <body>
+    <p>See <a href="example.js">example source code</a></p>
+    <p><i>NOTE: try reloading at various points</i></p>
+    <div id="links" style="padding: 10px;">
+      <a href="#">Reset Hash</a><br />
+      <a href="#/foo">#/foo</a><br />
+      <a href="#/foo/bar">#/foo/bar</a><br />
+      <a href="#/baz">#/baz</a><br />
+    </div>
+
+    <div id="log" style="white-space: pre; padding: 10px; border-top: 1px solid #888; border-bottom: 1px solid #888"></div>
+
+    <script id="exampleCode" type="text/javascript">
+var rootNav = $.navigationRoot();
+
+writeMessage('started');
+
+rootNav.when('/foo', function (fooNav) {
+    writeMessage('entered "foo" state');
+
+    // e.g. create a container widget
+
+    $(fooNav).on('destroyed', function() {
+        writeMessage('left "foo" state');
+
+        // e.g. destroy the container widget
+    });
+
+    fooNav.when('/bar', function (barNav) {
+        writeMessage('entered "foo/bar" state');
+
+        // e.g. create a sub-widget and attach to container
+
+        $(barNav).on('destroyed', function() {
+            writeMessage('left "foo/bar" state');
+
+            // e.g. destroy the sub-widget
+        });
+    });
+});
+
+rootNav.when('/baz', function (bazNav) {
+    writeMessage('entered "baz" state');
+
+    $(bazNav).on('destroyed', function() {
+        writeMessage('left "baz" state');
+    });
+});
+
+function writeMessage(message) {
+    $('<span></span>').appendTo('#log').text(message + "\n");
+}
+
+    </script>
+    <script type="text/javascript">
+      var src = $('#exampleCode').text();
+
+      $('<pre></pre>').css({
+        float: 'right',
+        padding: '20px',
+        background: '#f0f0f0',
+        width: '30%'
+      }).prependTo('body').text(src);
+    </script>
+  </body>
+</html>
