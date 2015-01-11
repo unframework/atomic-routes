@@ -27,32 +27,50 @@
             if suffixPath.length < 1
                 throw new Error('suffix must start with slash (/) and specify at least one path segment')
 
+            currentArgs = null
             currentState = null
 
             matchPath = (subPath) ->
+                if subPath.length < suffixPath.length
+                    return null
+
+                args = []
+
                 for segment, i in suffixPath
-                    if subPath[i] isnt segment
+                    if segment[0] is ':'
+                        args.push decodeURIComponent(subPath[i])
+                    else if subPath[i] isnt segment
                         return null
 
-                return [ {}, subPath.slice suffixPath.length ]
+                return [ args, subPath.slice suffixPath.length ]
+
+            matchCurrentArgs = (args) ->
+                for x, i in args
+                    if x isnt currentArgs[i]
+                        return false
+
+                return true
 
             processPath = (subPath) =>
                 match = if subPath isnt null then matchPath subPath else null
 
-                if match
-                    childSubPath = match[1]
+                # destroy current child state on path mismatch or args mismatch
+                if currentState isnt null
+                    if match is null or not matchCurrentArgs match[0]
+                        currentState._destroy()
+                        currentState = null
+                        currentArgs = null
 
-                    # either create child state or destroy it
+                # when matching, either create child state or update it
+                if match isnt null
                     if currentState is null
-                        currentState = new NavigationState this, suffix, childSubPath
-                        cb currentState
-                    else
-                        currentState._update childSubPath
+                        currentState = new NavigationState this, suffix, match[1]
+                        currentArgs = match[0]
 
-                else if currentState isnt null
-                    # destroy child state
-                    currentState._destroy()
-                    currentState = null
+                        cb.apply null, currentArgs.concat [ currentState ]
+                    else
+                        currentState._update match[1]
+
 
             $(this).on 'changed', (e, subPath) =>
                 processPath subPath

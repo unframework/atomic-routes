@@ -14,7 +14,8 @@
       <a href="#">Reset Hash</a><br />
       <a href="#/foo">#/foo</a><br />
       <a href="#/foo/bar">#/foo/bar</a><br />
-      <a href="#/baz">#/baz</a><br />
+      <a href="#/baz/1/abcd">#/baz/1/abcd</a><br />
+      <a href="#/baz/Hello%20World/complex%2fvalue">#/baz/Hello%20World/complex%2fvalue</a><br />
     </div>
 
     <div id="log" style="white-space: pre; padding: 10px; border-top: 1px solid #888; border-bottom: 1px solid #888"></div>
@@ -48,11 +49,11 @@ rootNav.when('/foo', function (fooNav) {
     });
 });
 
-rootNav.when('/baz', function (bazNav) {
-    writeMessage('entered "baz" state');
+rootNav.when('/baz/:someParam/:otherParam', function (someParam, otherParam, bazNav) {
+    writeMessage('entered "baz" state with params "' + someParam + '" and "' + otherParam + '"');
 
     $(bazNav).on('destroyed', function() {
-        writeMessage('left "baz" state');
+        writeMessage('left "baz" state with params "' + someParam + '" and "' + otherParam + '"');
     });
 });
 

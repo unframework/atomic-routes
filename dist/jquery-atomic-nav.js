@@ -27,7 +27,7 @@
     };
 
     NavigationState.prototype.when = function(suffix, cb) {
-      var currentState, matchPath, processPath, suffixPath;
+      var currentArgs, currentState, matchCurrentArgs, matchPath, processPath, suffixPath;
       if (this._isDestroyed) {
         throw new Error('already destroyed');
       }
@@ -35,32 +35,53 @@
       if (suffixPath.length < 1) {
         throw new Error('suffix must start with slash (/) and specify at least one path segment');
       }
+      currentArgs = null;
       currentState = null;
       matchPath = function(subPath) {
-        var i, segment, _i, _len;
+        var args, i, segment, _i, _len;
+        if (subPath.length < suffixPath.length) {
+          return null;
+        }
+        args = [];
         for (i = _i = 0, _len = suffixPath.length; _i < _len; i = ++_i) {
           segment = suffixPath[i];
-          if (subPath[i] !== segment) {
+          if (segment[0] === ':') {
+            args.push(decodeURIComponent(subPath[i]));
+          } else if (subPath[i] !== segment) {
             return null;
           }
         }
-        return [{}, subPath.slice(suffixPath.length)];
+        return [args, subPath.slice(suffixPath.length)];
+      };
+      matchCurrentArgs = function(args) {
+        var i, x, _i, _len;
+        for (i = _i = 0, _len = args.length; _i < _len; i = ++_i) {
+          x = args[i];
+          if (x !== currentArgs[i]) {
+            return false;
+          }
+        }
+        return true;
       };
       processPath = (function(_this) {
         return function(subPath) {
-          var childSubPath, match;
+          var match;
           match = subPath !== null ? matchPath(subPath) : null;
-          if (match) {
-            childSubPath = match[1];
-            if (currentState === null) {
-              currentState = new NavigationState(_this, suffix, childSubPath);
-              return cb(currentState);
-            } else {
-              return currentState._update(childSubPath);
+          if (currentState !== null) {
+            if (match === null || !matchCurrentArgs(match[0])) {
+              currentState._destroy();
+              currentState = null;
+              currentArgs = null;
             }
-          } else if (currentState !== null) {
-            currentState._destroy();
-            return currentState = null;
+          }
+          if (match !== null) {
+            if (currentState === null) {
+              currentState = new NavigationState(_this, suffix, match[1]);
+              currentArgs = match[0];
+              return cb.apply(null, currentArgs.concat([currentState]));
+            } else {
+              return currentState._update(match[1]);
+            }
           }
         };
       })(this);
