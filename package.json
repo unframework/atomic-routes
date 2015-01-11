@@ -1,0 +1,15 @@
+{
+  "name": "jquery-atomic-nav",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "event-stream": "~3.2.1",
+    "gulp": "~3.8.0",
+    "gulp-coffee": "~2.2.0",
+    "gulp-karma": "0.0.4",
+    "gulp-plumber": "~0.6.3",
+    "karma": "^0.12.31",
+    "rimraf": "~2.2.8"
+  }
+}
