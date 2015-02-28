@@ -5,6 +5,14 @@ This library is designed to work with component-based application UIs. Heavily i
 
 Unlike AngularJS UI Router and most other routing libraries, Atomic Nav routes are defined on-demand. This allows for a better, more elegant composition of widgets with no need for the massive central "routes" file.
 
+## Usage
+
+Routes are defined via `when` method. Each route body is executed when a navigation state is entered. The navigation state can be used to define nested routes, and to track when the user leaves that navigation state. The library defines the "root" navigation state that is always active - that is the starting place where routes are registered.
+
+To detect when a navigation state is no longer active, register a callback on the state object using the `whenDestroyed.then` method. The `whenDestroyed` property is a full-fledged promise object, so the callback will be called even when trying to register *after* the user left the navigation state. This is helpful to easily clean up UI created as a result of an asynchronous operation: the operation may complete after the navigation state has become inactive, so attaching a simple event listener would miss out on the cleanup.
+
+## Examples
+
 For more examples see `/example/index.html`.
 
 Example code:
@@ -17,7 +25,7 @@ rootNav.when('/foo', function (fooNav) {
 
     // e.g. create a container widget
 
-    $(fooNav).on('destroyed', function() {
+    fooNav.whenDestroyed.then(function() {
         console.log('left "foo" state');
 
         // e.g. destroy the container widget
@@ -28,7 +36,7 @@ rootNav.when('/foo', function (fooNav) {
 
         // e.g. create a sub-widget and attach to container
 
-        $(barNav).on('destroyed', function() {
+        barNav.whenDestroyed.then(function() {
             console.log('left "foo/bar" state');
 
             // e.g. destroy the sub-widget
@@ -39,7 +47,7 @@ rootNav.when('/foo', function (fooNav) {
 rootNav.when('/baz/:someParam', function (someParam, bazNav) {
     console.log('entered "baz" state with "' + someParam + '"');
 
-    $(bazNav).on('destroyed', function() {
+    bazNav.whenDestroyed.then(function() {
         console.log('left "baz" state with "' + someParam + '"');
     });
 });

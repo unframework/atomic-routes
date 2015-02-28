@@ -1,6 +1,6 @@
 {
   "name": "jquery-atomic-nav",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "dist/jquery-atomic-nav.js",
   "dependencies": {
     "jquery": "~2.1.3"
