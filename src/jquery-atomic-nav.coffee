@@ -11,6 +11,8 @@
             @_fullPath = if @_parent is null then @_suffix else @_parent._fullPath.concat @_suffix
             @_isDestroyed = false
 
+            @whenDestroyed = new $.Deferred()
+
         _update: (subPath) ->
             if @_isDestroyed
                 throw new Error('already destroyed')
@@ -22,6 +24,8 @@
                 throw new Error('already destroyed')
 
             @_isDestroyed = true
+
+            @whenDestroyed.resolve()
             $(this).trigger 'destroyed'
 
         when: (suffix, cb) ->

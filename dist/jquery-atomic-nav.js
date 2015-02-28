@@ -11,6 +11,7 @@
       this._currentPath = _currentPath;
       this._fullPath = this._parent === null ? this._suffix : this._parent._fullPath.concat(this._suffix);
       this._isDestroyed = false;
+      this.whenDestroyed = new $.Deferred();
     }
 
     NavigationState.prototype._update = function(subPath) {
@@ -25,6 +26,7 @@
         throw new Error('already destroyed');
       }
       this._isDestroyed = true;
+      this.whenDestroyed.resolve();
       return $(this).trigger('destroyed');
     };
 
