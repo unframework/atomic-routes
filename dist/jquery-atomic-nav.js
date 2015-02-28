@@ -1,5 +1,7 @@
-(function(module) {
-  return module(jQuery);
+(typeof module !== "undefined" && module !== null ? function(moduleBody) {
+  return module.exports = moduleBody(require('jquery'));
+} : function(moduleBody) {
+  return $.navigationRoot = moduleBody(jQuery);
 })(function($) {
   var NavigationState, getHashPath;
   NavigationState = (function() {
@@ -38,12 +40,12 @@
       currentArgs = null;
       currentState = null;
       matchPath = function(subPath) {
-        var args, i, segment, _i, _len;
+        var args, i, j, len, segment;
         if (subPath.length < suffixPath.length) {
           return null;
         }
         args = [];
-        for (i = _i = 0, _len = suffixPath.length; _i < _len; i = ++_i) {
+        for (i = j = 0, len = suffixPath.length; j < len; i = ++j) {
           segment = suffixPath[i];
           if (segment[0] === ':') {
             args.push(decodeURIComponent(subPath[i]));
@@ -54,8 +56,8 @@
         return [args, subPath.slice(suffixPath.length)];
       };
       matchCurrentArgs = function(args) {
-        var i, x, _i, _len;
-        for (i = _i = 0, _len = args.length; _i < _len; i = ++_i) {
+        var i, j, len, x;
+        for (i = j = 0, len = args.length; j < len; i = ++j) {
           x = args[i];
           if (x !== currentArgs[i]) {
             return false;
@@ -122,7 +124,7 @@
       return '';
     }
   };
-  return $.navigationRoot = function() {
+  return function() {
     var root;
     $(window).on('hashchange', function() {
       return root._update(getHashPath());

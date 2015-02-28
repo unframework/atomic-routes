@@ -1,5 +1,11 @@
-
-((module) -> module(jQuery)) ($) ->
+(
+  if module? # @todo better detection
+    # browserify mode
+    (moduleBody) -> module.exports = moduleBody(require('jquery'))
+  else
+    # bower (global) mode
+    (moduleBody) -> $.navigationRoot = moduleBody(jQuery)
+) ($) ->
     class NavigationState
         constructor: (@_parent, @_suffix, @_currentPath) ->
             @_fullPath = if @_parent is null then @_suffix else @_parent._fullPath.concat @_suffix
@@ -102,7 +108,7 @@
         else
             ''
 
-    $.navigationRoot = () ->
+    () ->
         $(window).on 'hashchange', ->
             root._update getHashPath()
 
