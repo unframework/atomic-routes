@@ -1,7 +1,11 @@
 {
-  "name": "jquery-atomic-nav",
-  "version": "0.1.0",
-  "main": "dist/jquery-atomic-nav.js",
+  "name": "atomic-routes",
+  "version": "0.2.0",
+  "main": "dist/atomic-routes.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unframework/atomic-routes.git"
+  },
   "dependencies": {
     "jquery": "~2.1.3"
   },
