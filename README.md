@@ -1,45 +1,30 @@
-# jquery-atomic-nav
-Concise jQuery routing and navigation plugin based on nested navigation states.
+# Atomic Routes
 
-This library is designed to work with component-based application UIs. Heavily inspired by the state-machine approach of [AngularJS UI Router](https://github.com/angular-ui/ui-router) and modern techniques like Promises that emphasize immutable, functional state.
-
-Unlike AngularJS UI Router and most other routing libraries, Atomic Nav routes are defined on-demand. This allows for a better, more elegant composition of widgets with no need for the massive central "routes" file.
-
-## Usage
-
-Routes are defined via `when` method. Each route body is executed when a navigation state is entered. The navigation state can be used to define nested routes, and to track when the user leaves that navigation state. The library defines the "root" navigation state that is always active - that is the starting place where routes are registered.
-
-To detect when a navigation state is no longer active, register a callback on the state object using the `whenDestroyed.then` method. The `whenDestroyed` property is a full-fledged promise object, so the callback will be called even when trying to register *after* the user left the navigation state. This is helpful to easily clean up UI created as a result of an asynchronous operation: the operation may complete after the navigation state has become inactive, so attaching a simple event listener would miss out on the cleanup.
-
-## Examples
-
-For more examples see `/example/index.html`.
-
-Example code:
+Minimalist framework-agnostic routing and navigation plugin based on nested navigation states. Designed to work with component-based application UIs: composable and simple.
 
 ```js
 var rootNav = $.navigationRoot();
 
 rootNav.when('/foo', function (fooNav) {
+    // create a container widget
     console.log('entered "foo" state');
-
-    // e.g. create a container widget
+    var rootDom = $('<div>Root View</div>').appendTo('body');
 
     fooNav.whenDestroyed.then(function() {
+        // destroy the container widget
         console.log('left "foo" state');
-
-        // e.g. destroy the container widget
+        rootDom.remove();
     });
 
     fooNav.when('/bar', function (barNav) {
+        // create a sub-widget and attach to container
         console.log('entered "foo/bar" state');
-
-        // e.g. create a sub-widget and attach to container
+        var fooDom = $('<div>FooBar View</div>').appendTo(rootDom);
 
         barNav.whenDestroyed.then(function() {
+            // destroy the sub-widget
             console.log('left "foo/bar" state');
-
-            // e.g. destroy the sub-widget
+            fooDom.remove();
         });
     });
 });
@@ -53,10 +38,14 @@ rootNav.when('/baz/:someParam', function (someParam, bazNav) {
 });
 ```
 
+Inspired by [AngularJS UI Router](https://github.com/angular-ui/ui-router) and modern techniques like Promises that emphasize immutable, functional state.
+
+Unlike AngularJS UI Router and most other routing libraries, Atomic Routes are defined on-demand. This allows for a better, more elegant composition of widgets with no need for the massive central "routes" file.
+
 Composition example:
 
 ```js
-// top-level "page" view
+// RootView.js: top-level "page" view
 function RootView() {
     var rootNav = $.navigationRoot();
     var $dom = $('body');
@@ -65,8 +54,10 @@ function RootView() {
         var fizzBuzzView = new FizzBuzzView($dom, fizzBuzzNav);
     });
 }
+```
 
-// sub-component in another file
+```js
+// FizzBuzzView.js: sub-component in another file
 function FizzBuzzView($dom, nav) {
     // ... render DOM, etc
 
@@ -76,3 +67,13 @@ function FizzBuzzView($dom, nav) {
     });
 }
 ```
+
+## Usage Patterns
+
+Routes are defined via `when` method. Each route body is executed when a navigation state is entered. The navigation state can be used to define nested routes, and to track when the user leaves that navigation state. The library defines the "root" navigation state that is always active - that is the starting place where routes are registered.
+
+To detect when a navigation state is no longer active, register a callback on the state object using the `whenDestroyed.then` method. The `whenDestroyed` property is a full-fledged promise object, so the callback will be called even when trying to register *after* the user left the navigation state. This is needed to easily clean up UI created as a result of an asynchronous operation: the operation may complete after the navigation state has become inactive, so attaching a simple event listener would miss out on the cleanup.
+
+## More Examples
+
+For more examples see `/example/index.html`.
