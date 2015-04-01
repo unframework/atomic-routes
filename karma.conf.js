@@ -2,7 +2,7 @@ module.exports = function(config) {
     config.set({
         basePath: '',
 
-        frameworks: ['jasmine', 'jquery-2.1.0'],
+        frameworks: ['jasmine'],
 
         preprocessors: {
             '**/*.coffee': ['coffee']

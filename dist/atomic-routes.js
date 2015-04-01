@@ -1,8 +1,8 @@
 (typeof module !== "undefined" && module !== null ? function(moduleBody) {
-  return module.exports = moduleBody(require('jquery'));
+  return module.exports = moduleBody(require('bluebird'));
 } : function(moduleBody) {
-  return $.navigationRoot = moduleBody(jQuery);
-})(function($) {
+  return window.RootRoute = moduleBody(Promise);
+})(function(Promise) {
   var NavigationState, getHashPath;
   NavigationState = (function() {
     function NavigationState(_parent, _suffix, _currentPath) {
@@ -11,23 +11,42 @@
       this._currentPath = _currentPath;
       this._fullPath = this._parent === null ? this._suffix : this._parent._fullPath.concat(this._suffix);
       this._isDestroyed = false;
-      this.whenDestroyed = new $.Deferred();
+      this._listenerList = [];
+      this.whenDestroyed = new Promise((function(_this) {
+        return function(resolve, reject) {
+          return _this._resolveWhenDestroyed = resolve;
+        };
+      })(this));
     }
 
     NavigationState.prototype._update = function(subPath) {
+      var changeListener, j, len, ref, results;
       if (this._isDestroyed) {
         throw new Error('already destroyed');
       }
-      return $(this).trigger('changed', [subPath]);
+      ref = this._listenerList;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        changeListener = ref[j];
+        results.push(changeListener(subPath));
+      }
+      return results;
     };
 
     NavigationState.prototype._destroy = function() {
+      var changeListener, j, len, ref, results;
       if (this._isDestroyed) {
         throw new Error('already destroyed');
       }
       this._isDestroyed = true;
-      this.whenDestroyed.resolve();
-      return $(this).trigger('destroyed');
+      this._resolveWhenDestroyed();
+      ref = this._listenerList;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        changeListener = ref[j];
+        results.push(changeListener(null));
+      }
+      return results;
     };
 
     NavigationState.prototype.when = function(suffix, cb) {
@@ -89,16 +108,7 @@
           }
         };
       })(this);
-      $(this).on('changed', (function(_this) {
-        return function(e, subPath) {
-          return processPath(subPath);
-        };
-      })(this));
-      $(this).on('destroyed', (function(_this) {
-        return function() {
-          return processPath(null);
-        };
-      })(this));
+      this._listenerList.push(processPath);
       processPath(this._currentPath);
       return this;
     };
@@ -128,7 +138,7 @@
   };
   return function() {
     var root;
-    $(window).on('hashchange', function() {
+    window.addEventListener('hashchange', function() {
       return root._update(getHashPath());
     });
     return root = new NavigationState(null, '', getHashPath());

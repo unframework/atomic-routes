@@ -21,7 +21,7 @@
     <div id="log" style="white-space: pre; padding: 10px; border-top: 1px solid #888; border-bottom: 1px solid #888"></div>
 
     <script id="exampleCode" type="text/javascript">
-var rootNav = $.navigationRoot();
+var rootNav = new RootRoute();
 
 writeMessage('started');
 
@@ -30,7 +30,7 @@ rootNav.when('/foo', function (fooNav) {
 
     // e.g. create a container widget
 
-    $(fooNav).on('destroyed', function() {
+    fooNav.whenDestroyed.then(function() {
         writeMessage('left "foo" state');
 
         // e.g. destroy the container widget
@@ -41,7 +41,7 @@ rootNav.when('/foo', function (fooNav) {
 
         // e.g. create a sub-widget and attach to container
 
-        $(barNav).on('destroyed', function() {
+        barNav.whenDestroyed.then(function() {
             writeMessage('left "foo/bar" state');
 
             // e.g. destroy the sub-widget
@@ -52,7 +52,7 @@ rootNav.when('/foo', function (fooNav) {
 rootNav.when('/baz/:someParam/:otherParam', function (someParam, otherParam, bazNav) {
     writeMessage('entered "baz" state with params "' + someParam + '" and "' + otherParam + '"');
 
-    $(bazNav).on('destroyed', function() {
+    bazNav.whenDestroyed.then(function() {
         writeMessage('left "baz" state with params "' + someParam + '" and "' + otherParam + '"');
     });
 });

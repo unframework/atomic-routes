@@ -3,7 +3,7 @@
 Minimalist framework-agnostic routing and navigation plugin based on nested navigation states. Designed to work with component-based application UIs: composable and simple.
 
 ```js
-var rootNav = $.navigationRoot();
+var rootNav = new RootRoute();
 
 rootNav.when('/foo', function (fooNav) {
     // create a container widget
@@ -47,7 +47,7 @@ Composition example:
 ```js
 // RootView.js: top-level "page" view
 function RootView() {
-    var rootNav = $.navigationRoot();
+    var rootNav = new RootRoute();
     var $dom = $('body');
 
     rootNav.when('/fizz-buzz', function (fizzBuzzNav) {

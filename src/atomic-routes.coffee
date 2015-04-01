@@ -1,23 +1,27 @@
 (
   if module? # @todo better detection
     # browserify mode
-    (moduleBody) -> module.exports = moduleBody(require('jquery'))
+    (moduleBody) -> module.exports = moduleBody(require('bluebird'))
   else
     # bower (global) mode
-    (moduleBody) -> $.navigationRoot = moduleBody(jQuery)
-) ($) ->
+    (moduleBody) -> window.RootRoute = moduleBody(Promise)
+) (Promise) ->
     class NavigationState
         constructor: (@_parent, @_suffix, @_currentPath) ->
             @_fullPath = if @_parent is null then @_suffix else @_parent._fullPath.concat @_suffix
             @_isDestroyed = false
 
-            @whenDestroyed = new $.Deferred()
+            @_listenerList = []
+
+            @whenDestroyed = new Promise (resolve, reject) =>
+                @_resolveWhenDestroyed = resolve
 
         _update: (subPath) ->
             if @_isDestroyed
                 throw new Error('already destroyed')
 
-            $(this).trigger 'changed', [ subPath ]
+            for changeListener in @_listenerList
+                changeListener subPath
 
         _destroy: ->
             if @_isDestroyed
@@ -25,8 +29,10 @@
 
             @_isDestroyed = true
 
-            @whenDestroyed.resolve()
-            $(this).trigger 'destroyed'
+            @_resolveWhenDestroyed()
+
+            for changeListener in @_listenerList
+                changeListener null
 
         when: (suffix, cb) ->
             if @_isDestroyed
@@ -81,12 +87,7 @@
                     else
                         currentState._update match[1]
 
-
-            $(this).on 'changed', (e, subPath) =>
-                processPath subPath
-
-            $(this).on 'destroyed', =>
-                processPath null
+            @_listenerList.push processPath
 
             processPath @_currentPath
 
@@ -113,7 +114,7 @@
             ''
 
     () ->
-        $(window).on 'hashchange', ->
+        window.addEventListener 'hashchange', ->
             root._update getHashPath()
 
         root = new NavigationState null, '', getHashPath()

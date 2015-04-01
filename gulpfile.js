@@ -20,7 +20,11 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('test', function() {
-    return es.concat(gulp.src(coffeeSrc), gulp.src(testSrc))
+    return es.concat(
+        gulp.src(__dirname + '/node_modules/bluebird/js/browser/bluebird.js'),
+        gulp.src(coffeeSrc),
+        gulp.src(testSrc)
+    )
         .pipe(karma({
             configFile: 'karma.conf.js',
             action: 'run'
