@@ -1,6 +1,6 @@
 # Atomic Routes
 
-Minimalist framework-agnostic routing and navigation plugin based on nested navigation states. Designed to work with component-based application UIs: composable and simple.
+Decentralized nested client-side routing with Promises. Framework-agnostic, composable, simple: designed to work with component-based application UIs.
 
 ```js
 var rootNav = new RootRoute();
@@ -38,9 +38,9 @@ rootNav.when('/baz/:someParam', function (someParam, bazNav) {
 });
 ```
 
-Inspired by [AngularJS UI Router](https://github.com/angular-ui/ui-router) and modern techniques like Promises that emphasize immutable, functional state.
+Inspired by [AngularJS UI Router](https://github.com/angular-ui/ui-router) nested routes concept and modern techniques like Promises that emphasize immutable, functional state.
 
-Unlike AngularJS UI Router and most other routing libraries, Atomic Routes are defined on-demand. This allows for a better, more elegant composition of widgets with no need for the massive central "routes" file.
+Unlike AngularJS UI Router and most other routing libraries, Atomic Routes are defined on-demand and in a decentralized fashion. There is no need for a massive central "routes" file which has to run at bootstrap time.
 
 Composition example:
 
@@ -57,11 +57,11 @@ function RootView() {
 ```
 
 ```js
-// FizzBuzzView.js: sub-component in another file
+// FizzBuzzView.js: sub-component in another file which expects delegated nav state
 function FizzBuzzView($dom, nav) {
     // ... render DOM, etc
 
-    // can create sub-routes without needing to know what the URL is
+    // can create sub-routes without needing to know what the parent URL is
     nav.when('/foo-bar', function (fooBarNav) {
         // render more sub-route DOM, etc
     });
@@ -70,7 +70,7 @@ function FizzBuzzView($dom, nav) {
 
 ## Usage Patterns
 
-Routes are defined via `when` method. Each route body is executed when a navigation state is entered. The navigation state can be used to define nested routes, and to track when the user leaves that navigation state. The library defines the "root" navigation state that is always active - that is the starting place where routes are registered.
+Routes are defined via `when` method. Each route body is executed when a navigation state is entered (immediately if it already matches current route). The navigation state can be used to define nested routes, and to track when the user leaves that navigation state. The library defines the "root" navigation state that is always active - that is the starting place where routes are registered.
 
 To detect when a navigation state is no longer active, register a callback on the state object using the `whenDestroyed.then` method. The `whenDestroyed` property is a full-fledged promise object, so the callback will be called even when trying to register *after* the user left the navigation state. This is needed to easily clean up UI created as a result of an asynchronous operation: the operation may complete after the navigation state has become inactive, so attaching a simple event listener would miss out on the cleanup.
 
