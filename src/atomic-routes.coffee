@@ -34,6 +34,31 @@
             for changeListener in @_listenerList
                 changeListener null
 
+        whenRoot: (cb) ->
+            if @_isDestroyed
+                throw new Error('already destroyed')
+
+            currentState = null
+
+            processPath = (subPath) =>
+                isMatching = subPath isnt null and subPath.length is 0
+
+                # destroy current child state on path mismatch
+                if currentState isnt null and !isMatching
+                    currentState._destroy()
+                    currentState = null
+
+                # when matching, create child state
+                if isMatching and currentState is null
+                    currentState = new NavigationState this, [], []
+                    cb.call null, currentState
+
+            @_listenerList.push processPath
+
+            processPath @_currentPath
+
+            this
+
         when: (suffix, cb) ->
             if @_isDestroyed
                 throw new Error('already destroyed')

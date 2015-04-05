@@ -49,6 +49,31 @@
       return _results;
     };
 
+    NavigationState.prototype.whenRoot = function(cb) {
+      var currentState, processPath;
+      if (this._isDestroyed) {
+        throw new Error('already destroyed');
+      }
+      currentState = null;
+      processPath = (function(_this) {
+        return function(subPath) {
+          var isMatching;
+          isMatching = subPath !== null && subPath.length === 0;
+          if (currentState !== null && !isMatching) {
+            currentState._destroy();
+            currentState = null;
+          }
+          if (isMatching && currentState === null) {
+            currentState = new NavigationState(_this, [], []);
+            return cb.call(null, currentState);
+          }
+        };
+      })(this);
+      this._listenerList.push(processPath);
+      processPath(this._currentPath);
+      return this;
+    };
+
     NavigationState.prototype.when = function(suffix, cb) {
       var currentArgs, currentState, matchCurrentArgs, matchPath, processPath, suffixPath;
       if (this._isDestroyed) {
