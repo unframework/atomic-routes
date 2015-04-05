@@ -9,7 +9,7 @@
     class NavigationState
         constructor: (@_parent, @_suffix, @_currentPath) ->
             @_fullPath = if @_parent is null then @_suffix else @_parent._fullPath.concat @_suffix
-            @_isDestroyed = false
+            @isActive = true
 
             @_listenerList = []
 
@@ -17,17 +17,17 @@
                 @_resolveWhenDestroyed = resolve
 
         _update: (subPath) ->
-            if @_isDestroyed
+            if !@isActive
                 throw new Error('already destroyed')
 
             for changeListener in @_listenerList
                 changeListener subPath
 
         _destroy: ->
-            if @_isDestroyed
+            if !@isActive
                 throw new Error('already destroyed')
 
-            @_isDestroyed = true
+            @isActive = false
 
             @_resolveWhenDestroyed()
 
@@ -35,7 +35,7 @@
                 changeListener null
 
         whenRoot: (cb) ->
-            if @_isDestroyed
+            if !@isActive
                 throw new Error('already destroyed')
 
             currentState = null
@@ -60,7 +60,7 @@
             this
 
         when: (suffix, cb) ->
-            if @_isDestroyed
+            if !@isActive
                 throw new Error('already destroyed')
 
             suffixPath = suffix.split('/').slice(1)
@@ -119,7 +119,7 @@
             this
 
         enter: (subPath) ->
-            if @_isDestroyed
+            if !@isActive
                 throw new Error('already destroyed')
 
             if subPath[0] isnt '/'
