@@ -20,33 +20,33 @@
     }
 
     NavigationState.prototype._update = function(subPath) {
-      var changeListener, j, len, ref, results;
+      var changeListener, _i, _len, _ref, _results;
       if (this._isDestroyed) {
         throw new Error('already destroyed');
       }
-      ref = this._listenerList;
-      results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        changeListener = ref[j];
-        results.push(changeListener(subPath));
+      _ref = this._listenerList;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        changeListener = _ref[_i];
+        _results.push(changeListener(subPath));
       }
-      return results;
+      return _results;
     };
 
     NavigationState.prototype._destroy = function() {
-      var changeListener, j, len, ref, results;
+      var changeListener, _i, _len, _ref, _results;
       if (this._isDestroyed) {
         throw new Error('already destroyed');
       }
       this._isDestroyed = true;
       this._resolveWhenDestroyed();
-      ref = this._listenerList;
-      results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        changeListener = ref[j];
-        results.push(changeListener(null));
+      _ref = this._listenerList;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        changeListener = _ref[_i];
+        _results.push(changeListener(null));
       }
-      return results;
+      return _results;
     };
 
     NavigationState.prototype.when = function(suffix, cb) {
@@ -61,12 +61,12 @@
       currentArgs = null;
       currentState = null;
       matchPath = function(subPath) {
-        var args, i, j, len, segment;
+        var args, i, segment, _i, _len;
         if (subPath.length < suffixPath.length) {
           return null;
         }
         args = [];
-        for (i = j = 0, len = suffixPath.length; j < len; i = ++j) {
+        for (i = _i = 0, _len = suffixPath.length; _i < _len; i = ++_i) {
           segment = suffixPath[i];
           if (segment[0] === ':') {
             args.push(decodeURIComponent(subPath[i]));
@@ -77,8 +77,8 @@
         return [args, subPath.slice(suffixPath.length)];
       };
       matchCurrentArgs = function(args) {
-        var i, j, len, x;
-        for (i = j = 0, len = args.length; j < len; i = ++j) {
+        var i, x, _i, _len;
+        for (i = _i = 0, _len = args.length; _i < _len; i = ++_i) {
           x = args[i];
           if (x !== currentArgs[i]) {
             return false;
@@ -99,7 +99,7 @@
           }
           if (match !== null) {
             if (currentState === null) {
-              currentState = new NavigationState(_this, suffix, match[1]);
+              currentState = new NavigationState(_this, subPath.slice(0, suffixPath.length), match[1]);
               currentArgs = match[0];
               return cb.apply(null, currentArgs.concat([currentState]));
             } else {
@@ -114,13 +114,15 @@
     };
 
     NavigationState.prototype.enter = function(subPath) {
+      var fullPrefix;
       if (this._isDestroyed) {
         throw new Error('already destroyed');
       }
       if (subPath[0] !== '/') {
         throw new Error('sub-path must begin with slash');
       }
-      window.location = '#' + this._fullPath + subPath;
+      fullPrefix = this._fullPath.length > 0 ? '#/' + this._fullPath.join('/') : '#';
+      window.location = fullPrefix + subPath;
     };
 
     return NavigationState;
@@ -141,6 +143,6 @@
     window.addEventListener('hashchange', function() {
       return root._update(getHashPath());
     });
-    return root = new NavigationState(null, '', getHashPath());
+    return root = new NavigationState(null, [], getHashPath());
   };
 });

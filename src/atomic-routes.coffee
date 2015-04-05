@@ -80,7 +80,7 @@
                 # when matching, either create child state or update it
                 if match isnt null
                     if currentState is null
-                        currentState = new NavigationState this, suffix, match[1]
+                        currentState = new NavigationState this, subPath.slice(0, suffixPath.length), match[1]
                         currentArgs = match[0]
 
                         cb.apply null, currentArgs.concat [ currentState ]
@@ -100,7 +100,8 @@
             if subPath[0] isnt '/'
                 throw new Error('sub-path must begin with slash')
 
-            window.location = '#' + @_fullPath + subPath
+            fullPrefix = if @_fullPath.length > 0 then '#/' + @_fullPath.join('/') else '#'
+            window.location = fullPrefix + subPath
 
             return
 
@@ -117,4 +118,4 @@
         window.addEventListener 'hashchange', ->
             root._update getHashPath()
 
-        root = new NavigationState null, '', getHashPath()
+        root = new NavigationState null, [], getHashPath()

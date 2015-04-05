@@ -1,6 +1,6 @@
 {
   "name": "atomic-routes",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "main": "dist/atomic-routes.js",
   "description": "Decentralized nested client-side routing with Promises. Framework-agnostic, composable, simple: designed to work with component-based application UIs.",
   "repository": {
