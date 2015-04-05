@@ -10,7 +10,7 @@
       this._suffix = _suffix;
       this._currentPath = _currentPath;
       this._fullPath = this._parent === null ? this._suffix : this._parent._fullPath.concat(this._suffix);
-      this._isDestroyed = false;
+      this.isActive = true;
       this._listenerList = [];
       this.whenDestroyed = new Promise((function(_this) {
         return function(resolve, reject) {
@@ -21,7 +21,7 @@
 
     NavigationState.prototype._update = function(subPath) {
       var changeListener, _i, _len, _ref, _results;
-      if (this._isDestroyed) {
+      if (!this.isActive) {
         throw new Error('already destroyed');
       }
       _ref = this._listenerList;
@@ -35,10 +35,10 @@
 
     NavigationState.prototype._destroy = function() {
       var changeListener, _i, _len, _ref, _results;
-      if (this._isDestroyed) {
+      if (!this.isActive) {
         throw new Error('already destroyed');
       }
-      this._isDestroyed = true;
+      this.isActive = false;
       this._resolveWhenDestroyed();
       _ref = this._listenerList;
       _results = [];
@@ -51,7 +51,7 @@
 
     NavigationState.prototype.whenRoot = function(cb) {
       var currentState, processPath;
-      if (this._isDestroyed) {
+      if (!this.isActive) {
         throw new Error('already destroyed');
       }
       currentState = null;
@@ -76,7 +76,7 @@
 
     NavigationState.prototype.when = function(suffix, cb) {
       var currentArgs, currentState, matchCurrentArgs, matchPath, processPath, suffixPath;
-      if (this._isDestroyed) {
+      if (!this.isActive) {
         throw new Error('already destroyed');
       }
       suffixPath = suffix.split('/').slice(1);
@@ -140,7 +140,7 @@
 
     NavigationState.prototype.enter = function(subPath) {
       var fullPrefix;
-      if (this._isDestroyed) {
+      if (!this.isActive) {
         throw new Error('already destroyed');
       }
       if (subPath[0] !== '/') {
