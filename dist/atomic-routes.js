@@ -20,33 +20,33 @@
     }
 
     NavigationState.prototype._update = function(subPath) {
-      var changeListener, _i, _len, _ref, _results;
+      var changeListener, j, len, ref, results;
       if (!this.isActive) {
         throw new Error('already destroyed');
       }
-      _ref = this._listenerList;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        changeListener = _ref[_i];
-        _results.push(changeListener(subPath));
+      ref = this._listenerList;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        changeListener = ref[j];
+        results.push(changeListener(subPath));
       }
-      return _results;
+      return results;
     };
 
     NavigationState.prototype._destroy = function() {
-      var changeListener, _i, _len, _ref, _results;
+      var changeListener, j, len, ref, results;
       if (!this.isActive) {
         throw new Error('already destroyed');
       }
       this.isActive = false;
       this._resolveWhenDestroyed();
-      _ref = this._listenerList;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        changeListener = _ref[_i];
-        _results.push(changeListener(null));
+      ref = this._listenerList;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        changeListener = ref[j];
+        results.push(changeListener(null));
       }
-      return _results;
+      return results;
     };
 
     NavigationState.prototype.whenRoot = function(cb) {
@@ -65,13 +65,19 @@
           }
           if (isMatching && currentState === null) {
             currentState = new NavigationState(_this, [], []);
-            return cb.call(null, currentState);
+            if (cb) {
+              return cb.call(null, currentState);
+            }
           }
         };
       })(this);
       this._listenerList.push(processPath);
       processPath(this._currentPath);
-      return this;
+      return {
+        getIsActive: function() {
+          return currentState !== null;
+        }
+      };
     };
 
     NavigationState.prototype.when = function(suffix, cb) {
@@ -86,12 +92,12 @@
       currentArgs = null;
       currentState = null;
       matchPath = function(subPath) {
-        var args, i, segment, _i, _len;
+        var args, i, j, len, segment;
         if (subPath.length < suffixPath.length) {
           return null;
         }
         args = [];
-        for (i = _i = 0, _len = suffixPath.length; _i < _len; i = ++_i) {
+        for (i = j = 0, len = suffixPath.length; j < len; i = ++j) {
           segment = suffixPath[i];
           if (segment[0] === ':') {
             args.push(decodeURIComponent(subPath[i]));
@@ -102,8 +108,8 @@
         return [args, subPath.slice(suffixPath.length)];
       };
       matchCurrentArgs = function(args) {
-        var i, x, _i, _len;
-        for (i = _i = 0, _len = args.length; _i < _len; i = ++_i) {
+        var i, j, len, x;
+        for (i = j = 0, len = args.length; j < len; i = ++j) {
           x = args[i];
           if (x !== currentArgs[i]) {
             return false;
@@ -126,7 +132,9 @@
             if (currentState === null) {
               currentState = new NavigationState(_this, subPath.slice(0, suffixPath.length), match[1]);
               currentArgs = match[0];
-              return cb.apply(null, currentArgs.concat([currentState]));
+              if (cb) {
+                return cb.apply(null, currentArgs.concat([currentState]));
+              }
             } else {
               return currentState._update(match[1]);
             }
@@ -135,7 +143,11 @@
       })(this);
       this._listenerList.push(processPath);
       processPath(this._currentPath);
-      return this;
+      return {
+        getIsActive: function() {
+          return currentState !== null;
+        }
+      };
     };
 
     NavigationState.prototype.enter = function(subPath) {

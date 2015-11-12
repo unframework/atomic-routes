@@ -51,13 +51,16 @@
                 # when matching, create child state
                 if isMatching and currentState is null
                     currentState = new NavigationState this, [], []
-                    cb.call null, currentState
+                    if cb then cb.call null, currentState
 
             @_listenerList.push processPath
 
             processPath @_currentPath
 
-            this
+            {
+              getIsActive: ->
+                currentState isnt null
+            }
 
         when: (suffix, cb) ->
             if !@isActive
@@ -108,7 +111,7 @@
                         currentState = new NavigationState this, subPath.slice(0, suffixPath.length), match[1]
                         currentArgs = match[0]
 
-                        cb.apply null, currentArgs.concat [ currentState ]
+                        if cb then cb.apply null, currentArgs.concat [ currentState ]
                     else
                         currentState._update match[1]
 
@@ -116,7 +119,10 @@
 
             processPath @_currentPath
 
-            this
+            {
+              getIsActive: ->
+                currentState isnt null
+            }
 
         enter: (subPath) ->
             if !@isActive
