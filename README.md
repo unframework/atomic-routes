@@ -77,3 +77,68 @@ To detect when a navigation state is no longer active, register a callback on th
 ## More Examples
 
 For more examples see `/example/index.html`.
+
+# Random Notes
+
+- navigation state in itself should just be a class that takes some parameters
+    - *parsing* the path is the job of the subroute link
+- this is going back to the express style route definition, I suppose
+    - the interesting bit here is then using things other than URL paths to track nav state transition
+- one important reason is because state should be normalized
+- big take-away, too, is that Reduxifying should be just a top-level attachment
+- actually, one big thing about URL patterns is that they tell how to *encode* a nav state
+    - this is why one can actually create a "candidate" and then get its path
+    - getting the path could still be a serialization thing
+    - because e.g. an intent state triggered by mouse hover (yep, hover is an affordance) is not necessarily serializable as a URL
+    - serialization here is specifically used as encoding of linkable URL, nothing else
+- either way, a nav-state-as-plain-class thing makes sense
+- more generically, what about "parent"?
+    - hover state on something *does* have a parent scope - not just "previous" scope, either, but actually parent
+    - what is "parent"? it is something that is guaranteed to not lose user focus until given state does
+- imagining a page that shows a reddit thread
+    - subscribe button in the sidebar
+    - hover state on subscribe button shows a "categorize" textbox
+        - when user does mouse-enter, that triggers a focused state on the intent
+        - when user mouse-leaves, that removes focus "pointer"
+    - *but* if the user clicks on textbox (or keyboard focus or whatever) mouse-leave should no longer remove focus
+        - how? perhaps by "pinning" focus? by an inner child nav state?
+        - or perhaps making the "is focused" on the nav state be a computed property of: "is currently hovered" || "has clicked"
+        - duration of the focus state is trackable as a promise, so whatever triggers it can allow for "stuffing" or "pinning" more stuff after creation but before completion
+    - importantly, intent represented by a URL is not "stuffable" via code, because it is flowing from a hard state of the URL bar
+        - but some composite inferred intent might be still
+        - that's essentially a notion of MDI-like popups
+        - where hover intent/etc are "hard", but MDI-pinning makes it a different kind of intent
+    - all that MDI-pinning does is let user click "X" or something to make it go away
+- if a hover/URL/MDI/whatever intent is active, the underlying state may "go away"
+    - but the important quality issue to enforce here is that the *affordance instance should stay*
+    - just means it is grayed-out/shows "oops" message
+    - kind of like going too far in the wizards in RR: it just shows a "please start over" message, but does not mess with actual user intent
+    - if user hovers over a table row card, the callout should not just disappear if underlying table reconfigures/changes/etc - classic issue of "unintended click switcharoo" resolved this way
+- modeling e.g. hover intent: has properties such as screen location and page location
+    - in fact, screen location is the more important one
+    - because it is what is under the cursor and avoids that "switcharoo" on scroll
+    - example: call-out when row is hovered
+        - if user puts mouse over call-out, scrolling away should actually keep the call-out active in *same spot*, but just "stretch" the connector arrow
+        - sure, if source spot goes too far away or if table disappears (e.g. due to state or URL navigation), should "pop" the bubble basically
+        - importantly, URL navigation should result in *delayed disappearance effect*
+            - i.e. callout bubble sticks around but animates out slowly enough to show the lost focus
+    - in other words, hard "instrumentation" things for appropriate sources of intent
+    - nothing to do with DOM though, perhaps, except as a way to add on more metering
+- hover affordance is still a *class*
+    - indicates the possibility of hover
+- affordances are defined before render, likely
+    - why? because harder to yank one away from the user? hmm
+    - just seems like it is closer to long-term view state definition
+    - affordance is actually closer to "I can categorize my subscription to reddit" than "I can hover over this button"
+    - but, importantly, affordance instance is still a fairly specific after-render thing, so maybe it's OK to create on render?
+    - basically affordance-as-instance spawns notion of intent-as-instance
+    - so, intent is instance and maybe affordance is a class?
+    - I intend to hover (easiest to interpret), which infers that I intend to see categorization options (because that is what the meaning of the hover affordance was)
+- hover affordance is on render, so makes sense to make a React component
+    - attaches to parent DOM element, basically
+    - however, nav affordance makes no sense to be part of the render tree - what is it even?
+- affordance implementation for e.g. hover is quite watertight in terms of tracking the "end" of the hover
+    - the whole point is to encapsulate conceivable user intent
+    - so the hover is done when element disappears, etc, etc
+    - which is then properly reported as part of intent state whenDone promise
+    - so the developer does not have to resort to further hacks to track more
