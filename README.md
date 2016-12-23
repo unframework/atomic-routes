@@ -142,3 +142,10 @@ For more examples see `/example/index.html`.
     - so the hover is done when element disappears, etc, etc
     - which is then properly reported as part of intent state whenDone promise
     - so the developer does not have to resort to further hacks to track more
+- form inputs: intents or affordances?
+    - as a user, I intend to tell my full name when signing up, and form inputs are affordances that spawn that intent?
+    - using express req/res model: my initial req is "i can haz form pls"
+        - then the response is - here are input affordances
+        - then what I do next is respond with intent to enter "Joe Smith" in those inputs
+        - the response might be an affordance to fix erroneous inputs
+            - because there might not be a possibility to fix them, I guess? or a longer feedback cycle

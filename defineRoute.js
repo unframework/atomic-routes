@@ -34,6 +34,19 @@ function ObjTable(props) {
                     // we can respond to intent to inspect by showing a "sorry" message with no data
                     // latter is an affordance for the user to go back, or refresh, I guess, or just
                     // to be *informed* of the state
+
+                    // CSS hover on buttons is much simpler than all this: indicates clickability
+                    // but that's actually kind of fine academically: consider a "GoodButton" component
+                    // that includes a Hover component that in turn does onStart action of "reinforcePerceivedClickability"
+                    // can still just add CSS class or whatever
+                    // in fact, Hover+reinforceClickability can then just *render* as a pattern to be a CSS :hover class
+                    // i.e. "optimize-out" the JS and replace with CSS :hover
+                    // of course, that is wonky, but at the same time the Hover component can just have a hoverStyle prop
+                    // which marries component-ness of things with predictable use of pure CSS in the end
+                }} />
+
+                <Hover style={{
+                    test: 'hi'
                 }} />
 
                 <Drag onStart={() => {
