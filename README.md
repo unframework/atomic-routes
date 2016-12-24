@@ -149,3 +149,26 @@ For more examples see `/example/index.html`.
         - then what I do next is respond with intent to enter "Joe Smith" in those inputs
         - the response might be an affordance to fix erroneous inputs
             - because there might not be a possibility to fix them, I guess? or a longer feedback cycle
+- action state tracker: the action state - intent - is created and managed by the visual element
+    - why? because it ensures the on-success confirmation gets rendered, and links action submit affordance to a specific spot in the UI
+    - also, easy restart right there on the spot - represents a "containing space" for the action
+    - this makes sense, actually - the intent is to do the action
+- Redux vs non-Redux approach are markedly different
+    - latter means relying heavily on React's setState to get any refresh to happen
+        - which means moving away from pure state objects as timeless core to contents-render functions with state args
+    - former means relying on middleware
+        - again, moving from pure state objects to Reduxified equivalents
+        - but at least not cloistered in the component render
+    - irony is that most app code does not need actually to deal with *state changes*, just focus on rendering
+        - because *business problem* is that state management is hard, but highly repeatable/reusable here
+        - in other words, state is hard (which is why Redux et al exist as generic state techniques)
+            - but in this case state management is *reusable* because it is well-known and modelable (UX patterns)
+    - so is Redux needed *per se*? not really, because traditional OOP can still be fine to manage state in a good way
+        - and Redux is not in every app, so not possible to rely on as workhorse
+    - goal is then to allow interaction with Redux, too, but mostly as notifier stuff
+        - so then in fact the goal might be to embrace non-Redux-land even further, and really rely on React component render-contents approach
+        - and actually discourage folks from hooking on to e.g. whenDone promises, etc
+            - instead, just allow rendering, not encourage state management
+    - ironically, then internally for reusable (across frameworks) code there might be room for Redux-like approach with immutables
+        - but that's an implementation concern
+        - interaction with real outside Redux is still a contract concern, independent of internal state mgmt
