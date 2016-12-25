@@ -172,3 +172,9 @@ For more examples see `/example/index.html`.
     - ironically, then internally for reusable (across frameworks) code there might be room for Redux-like approach with immutables
         - but that's an implementation concern
         - interaction with real outside Redux is still a contract concern, independent of internal state mgmt
+- hover tracking: maybe no need to track element hiding? why?
+    - because the *intent* to hover still remains
+    - element disappearance is not a *user* action, it is a response to something else
+    - however, mouse-leave is a user action, a real desire to stop the hover intent
+    - also, hard to code otherwise - maybe that's a sign!
+- linger: hover intent plus delay
