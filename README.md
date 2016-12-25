@@ -149,6 +149,12 @@ For more examples see `/example/index.html`.
         - then what I do next is respond with intent to enter "Joe Smith" in those inputs
         - the response might be an affordance to fix erroneous inputs
             - because there might not be a possibility to fix them, I guess? or a longer feedback cycle
+- BotFiddle script run button as example of simple action affordance
+    - in fact, it is a repeatable action affordance, even, where onSuccess = restart
+    - makes sense to attach to Redux state
+    - except action affordance is visual first, so maybe it should be created on render?
+    - onStart creates blank submittable action state
+    - angular-action, reimplemented
 - action state tracker: the action state - intent - is created and managed by the visual element
     - why? because it ensures the on-success confirmation gets rendered, and links action submit affordance to a specific spot in the UI
     - also, easy restart right there on the spot - represents a "containing space" for the action
