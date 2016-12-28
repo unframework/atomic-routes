@@ -77,3 +77,7 @@ To detect when a navigation state is no longer active, register a callback on th
 ## More Examples
 
 For more examples see `/example/index.html`.
+
+## To Do
+
+Consider an Express-style "use" clause. I.e. instead of actual live route body this would define a template body, executed on init rather than at navigation time. This would help get const references to routes to help link, etc.
